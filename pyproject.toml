@@ -1,7 +1,7 @@
 [project]
 name = "riyadh-ksu-geoproject"
 version = "0.1.0"
-description = "Add your description here"
+description = "Riyadh KSU Spatial Analysis"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
