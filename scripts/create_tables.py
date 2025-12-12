@@ -2,15 +2,29 @@
 import psycopg2
 from sql_queries import drop_table_queries,create_table_queries
 import configparser
-
+import streamlit as st
 
 
 def get_connection():
     """
     
-    a helper function will read DB parameters from db.cfg and return connection and cursior
+    a helper function will read DB parameters from db.cfg || streemlit and return connection and cursior
     """
 
+    try:
+        if "db_credentials" in st.secrets:
+            secrets = st.secrets["db_credentials"]
+            conn = psycopg2.connect(
+                dbname=secrets["dbname"],
+                host=secrets["host"],
+                user=secrets["user"],
+                password=secrets["password"],
+                port=secrets["port"]
+            )
+            return conn, conn.cursor()
+    except Exception:
+        pass
+    
     config = configparser.ConfigParser()
     config.read('config/db.cfg')
 
