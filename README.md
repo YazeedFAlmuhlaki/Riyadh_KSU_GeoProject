@@ -1,6 +1,8 @@
 
 # Riyadh_KSU_GeoProject
 
+> **[Live Demo](https://riyadhksugeoproject.streamlit.app/)**
+
 Spatial data science mini-project built around **Riyadh districts**, **restaurants**, and **King Saud University (KSU) gates**, using:
 
 - PostgreSQL + **PostGIS** (spatial database)
