@@ -1,6 +1,8 @@
 # this file contins all needed queries.
 
 
+create_postgis_extension = "CREATE EXTENSION IF NOT EXISTS postgis;"
+
 drop_districts_table = "DROP TABLE IF EXISTS districts;"
 drop_restaurants_table = "DROP TABLE IF EXISTS restaurants;"
 drop_ksu_gates_table = "DROP TABLE IF EXISTS ksu_gates;"
@@ -129,6 +131,7 @@ drop_table_queries = [
 ]
 
 create_table_queries = [
+    create_postgis_extension,
     create_districts_table,
     create_restaurants_table,
     create_ksu_gates_table
