@@ -1,0 +1,59 @@
+# --------------------
+# Python / bytecode
+# --------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# --------------------
+# Virtual environments
+# --------------------
+venv/
+.env/
+.venv/
+
+# --------------------
+# Jupyter & notebooks
+# --------------------
+.ipynb_checkpoints/
+
+# --------------------
+# Editors / IDEs
+# --------------------
+.vscode/
+.idea/
+
+# --------------------
+# OS files
+# --------------------
+.DS_Store
+Thumbs.db
+
+# --------------------
+# Local configs / secrets
+# (VERY IMPORTANT: this has your DB password)
+# --------------------
+config/db.cfg
+
+# If you create a template for others, you can track that:
+# config/db_example.cfg
+
+# --------------------
+# Local data (raw / large files)
+# You can keep sample / small data if you want by structuring folders.
+# --------------------
+data/
+!data/README.md    # keep a README in data/ explaining how to get the real files
+
+# --------------------
+# Anaconda junk (if created by your system)
+# --------------------
+anaconda_projects/
+
+# --------------------
+# uv / Python tooling
+# --------------------
+# DO NOT ignore pyproject.toml or uv.lock - these are important
+# pyproject.toml
+# uv.lock
