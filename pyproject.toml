@@ -7,5 +7,5 @@ requires-python = ">=3.13"
 dependencies = [
     "geopandas>=1.1.1",
     "marimo>=0.18.4",
-    "psycopg2>=2.9.11",
+    "psycopg2-binary",
 ]
