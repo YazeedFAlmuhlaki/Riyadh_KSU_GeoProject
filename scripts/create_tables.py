@@ -7,7 +7,7 @@ import configparser
 
 def get_connection():
     """
-
+    
     a helper function will read DB parameters from db.cfg and return connection and cursior
     """
 
@@ -58,7 +58,6 @@ def drop_tables(cur , conn):
 
 def create_tables(cur , conn):
     """
-    
     this method accept two parameter 
     cur and conn to excuate a predefiend (creating queries)
     cur will excuate the query , conn will commit the changes to the database
