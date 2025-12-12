@@ -39,12 +39,7 @@ config/db.cfg
 # If you create a template for others, you can track that:
 # config/db_example.cfg
 
-# --------------------
-# Local data (raw / large files)
-# You can keep sample / small data if you want by structuring folders.
-# --------------------
-data/
-!data/README.md    # keep a README in data/ explaining how to get the real files
+
 
 # --------------------
 # Anaconda junk (if created by your system)
