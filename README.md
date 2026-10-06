@@ -1,28 +1,26 @@
-
 # Riyadh_KSU_GeoProject
 
 > **[Live Demo](https://riyadhksugeoproject.streamlit.app/)**
 
-Spatial data science mini-project built around **Riyadh districts**, **restaurants**, and **King Saud University (KSU) gates**, using:
+A **data engineering and geospatial analytics project** built around **Riyadh districts**, **restaurants**, and **King Saud University (KSU) gates**.
 
-- PostgreSQL + **PostGIS** (spatial database)
-- Python (GeoPandas / Pandas / psycopg2)
-- Streamlit (exploratory web UI)
+The project uses:
 
-The goal is to practice working like a real spatial data scientist:
+- PostgreSQL + **PostGIS** for spatial data storage and processing
+- Python (**GeoPandas / Pandas / psycopg2**) for working with database results
+- Streamlit for the interactive application
 
-1. Load GeoJSON data into a spatial database.
-2. Compute geometry-aware features (areas, distances, buffers).
-3. Join multiple spatial layers (districts, restaurants, KSU gates).
-4. Serve the results to an interactive Streamlit app.
+The main focus is on working with spatial data in a database, performing geometry-aware transformations with PostGIS, and producing analysis-ready datasets for further analysis and visualization.
 
 ---
 
 ## 1. Data layers
 
+The project works with three main spatial datasets stored in PostgreSQL/PostGIS.
+
 ### 1.1 Districts (`districts` table)
 
-Polygon layer of Riyadh districts (or a sample).
+Polygon layer of Riyadh districts.
 
 Key columns:
 
@@ -72,13 +70,15 @@ Columns:
 
 ---
 
-## 2. Analysis layer
+## 2. Data processing and analysis
 
 Analysis SQL is kept in `scripts/sql_analysis_queries.py`.
 
-Main queries:
+The project uses PostGIS spatial operations to transform and combine the district, restaurant, and KSU gate datasets.
 
-### 2.1 District-level stats: `district_stats_query`
+The main queries are:
+
+### 2.1 District-level statistics: `district_stats_query`
 
 For each district, compute:
 
@@ -88,34 +88,38 @@ For each district, compute:
 
 Logic:
 
-```sql
-SELECT
-    district_id,
-    district_name_en,
-    district_name_ar,
-    area_km2,
-    COUNT(restaurant_id) AS restaurant_count,
-    AVG(rating) AS avg_rating,
-    (COUNT(restaurant_id) / area_km2) AS restaurants_per_km2,
-    districts.geom AS district_geom
-FROM districts
-INNER JOIN restaurants
-    ON ST_Contains(districts.geom, restaurants.geom)
-GROUP BY 1,2,3,4,8;
-```
+    SELECT
+        district_id,
+        district_name_en,
+        district_name_ar,
+        area_km2,
+        COUNT(restaurant_id) AS restaurant_count,
+        AVG(rating) AS avg_rating,
+        (COUNT(restaurant_id) / area_km2) AS restaurants_per_km2,
+        districts.geom AS district_geom
+    FROM districts
+    INNER JOIN restaurants
+        ON ST_Contains(districts.geom, restaurants.geom)
+    GROUP BY 1,2,3,4,8;
 
-Loaded into a **GeoDataFrame** via `geopandas.read_postgis`.
+The result is loaded into a **GeoDataFrame** via `geopandas.read_postgis`.
 
 ---
 
 ### 2.2 Gates with districts: `gates_with_district_query`
 
-Attach each KSU gate to the district polygon that contains it:
+Attach each KSU gate to the district polygon that contains it.
+
+The result contains:
 
 - gate attributes (`gate_id`, `gate_name_en`, `campus`, `gate_type`, `access_notes`, `gate_geom`)
 - matching district attributes (`district_id`, `district_name_en`, `district_name_ar`)
 
-Uses `ST_Contains(districts.geom, ksu_gates.geom)` with `LEFT JOIN` so gates outside any district (if any) still appear.
+The spatial relationship is determined using:
+
+    ST_Contains(districts.geom, ksu_gates.geom)
+
+A `LEFT JOIN` is used so gates outside any district, if any, still appear.
 
 ---
 
@@ -123,9 +127,11 @@ Uses `ST_Contains(districts.geom, ksu_gates.geom)` with `LEFT JOIN` so gates out
 
 Compute the distance from **every gate to every restaurant**:
 
-- `dist_km = ST_Distance(ksu_gates.geom, restaurants.geom) / 1000`
+    ST_Distance(ksu_gates.geom, restaurants.geom) / 1000
 
-This is loaded as a plain Pandas DataFrame and used to:
+The resulting `dist_km` value represents the distance in kilometres.
+
+The result is loaded as a plain Pandas DataFrame and is used to:
 
 - find the **nearest restaurant** per gate (`get_nearest_restaurant_per_gate`)
 - filter by distance thresholds if needed.
@@ -134,12 +140,12 @@ This is loaded as a plain Pandas DataFrame and used to:
 
 ### 2.4 Restaurants within 1 km of each gate: `gate_restaurants_1km_query`
 
-For each gate, summarise all restaurants within 1 km buffer:
+For each gate, summarise restaurants within a 1 km distance:
 
 - `restaurants_1km` – count of restaurants where `ST_DWithin(geom, geom, 1000)` is true
 - `avg_rating_1km` – mean rating of those restaurants
 
-Resulting DataFrame is joined with the “nearest restaurant” table to build the **gate summary**.
+The resulting DataFrame is joined with the “nearest restaurant” table to build the **gate summary**.
 
 ---
 
@@ -163,12 +169,51 @@ Each **row = one gate** and includes:
 
 Example interpretation:
 
-> For Gate X: there are 35 restaurants within 1 km;  
-> the closest one is *Nutellaplus* (0.158 km away) with rating 7.5.
+> For Gate X: there are 35 restaurants within 1 km; the closest one is *Nutellaplus* (0.158 km away) with rating 7.5.
 
 ---
 
-## 3. License / usage
+## 3. Streamlit application
 
-This project is intended as a **learning and portfolio** project for geospatial data science and PostGIS.  
+The resulting data is used by the Streamlit application:
+
+> **[Live Demo](https://riyadhksugeoproject.streamlit.app/)**
+
+The application provides an interactive way to explore the results of the spatial analysis.
+
+---
+
+## 4. What this project demonstrates
+
+From a data engineering perspective, the project demonstrates working with a spatial database and transforming multiple spatial datasets into analytical results.
+
+The project includes:
+
+- storing spatial datasets in PostgreSQL/PostGIS
+- working with different spatial data types, including polygons and points
+- computing derived spatial attributes such as area
+- transforming restaurant coordinates from WGS84 into EPSG:32638
+- performing spatial joins with `ST_Contains`
+- calculating distances with `ST_Distance`
+- filtering spatially with `ST_DWithin`
+- aggregating restaurant data at the district level
+- producing gate-level analytical results
+- loading PostGIS query results into GeoPandas and Pandas
+- presenting the resulting analysis through Streamlit
+
+The analytical layer provides additional analysis around:
+
+- restaurant counts by district
+- average restaurant ratings
+- restaurant density
+- nearest restaurants to KSU gates
+- number of restaurants within 1 km of each gate
+- average restaurant rating within 1 km of each gate
+
+---
+
+## 5. License / usage
+
+This project is intended as a learning and portfolio project for **data engineering and geospatial analytics**.
+
 Feel free to fork it and adapt to your own city / university, but make sure to respect the licenses of any underlying spatial datasets you use.
